@@ -1,0 +1,7 @@
+build/
+install/
+log/
+.vscode/
+src/libsick_ldmrs/
+src/msgpack11/
+src/sick_scan_xd/

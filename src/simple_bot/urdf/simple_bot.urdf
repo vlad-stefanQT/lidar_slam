@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<robot name="simple_bot">
+    <link name="base_link">
+    </link>
+
+    <joint name="base_link" type="fixed">
+        <parent link="base_link">
+        <child link="lidar">
+    </joint>
+
+    <link name="lidar">
+    </link>
+</robot> 
