@@ -5,11 +5,11 @@
 
     <joint name="base_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="cloud"/>
+        <child link="laser"/>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </joint>
 
-    <link name="cloud">
+    <link name="laser">
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </link>
 </robot>

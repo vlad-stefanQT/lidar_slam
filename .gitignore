@@ -7,4 +7,6 @@ src/msgpack11/
 src/sick_scan_xd/
 .posegraph
 .data
-*.pgm
+src/ros2_laser_scan_matcher/
+src/csm/
+src/urg_node2/

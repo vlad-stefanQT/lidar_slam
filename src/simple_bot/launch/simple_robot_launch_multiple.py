@@ -13,7 +13,20 @@ argument = DeclareLaunchArgument('lidar', default_value='sick551',
 # Each lidar driver has a corresponding boolean value showing if it is used or not
 lidar_drivers = {'sick551':False, 'sick571':False, 'ust10lx':False,
                   'ust20lx':False, 'pacecat': False, 'slamtech': False}
-
+lidar_drivers = {
+    'SLAMTEC_LPX_T1': {
+        'launch_file': 'view_sllidar_t1_launch.py',
+        'args': []
+    },
+    'PaceCat_2D_LDS_50C_E': {
+        'launch_file': 'LDS-50C-E.launch',
+        'args': []
+    },
+    'SICK_TIM571': {
+        'launch_file': 'sick_tim_5xx.launch.py',
+        'args': [('hostname', '192.168.0.10')]
+    }
+}
 def generate_launch_description():
     # Switch the boolean corresponding to the required lidar driver to True
     lidar = LaunchConfiguration('lidar')
@@ -51,6 +64,8 @@ def generate_launch_description():
 
     
     #TODO: add all drivers
+    # ros2 launch bluesea2 LDS-50C-E.launch
+    # ros2 launch sllidar_ros2 view_sllidar_t1_launch.py
     sick571_driver = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(get_package_share_directory('sick_scan_xd'), 
                                                     'launch'),'sick_tim_5xx.launch.py']),
