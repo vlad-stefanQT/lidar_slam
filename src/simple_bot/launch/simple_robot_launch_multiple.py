@@ -5,6 +5,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch.conditions import IfCondition
 import launch_ros
+from launch_ros.actions import Node
 import os
 
 # The user selects which lidar driver to use by assigning a value to the 'lidar' launch argument
@@ -18,23 +19,33 @@ lidar_drivers = {
     'sick551':[os.path.join(get_package_share_directory('sick_scan_xd'), 
                                                     'launch'),'sick_tim_5xx.launch.py'],
     'sick571':[os.path.join(get_package_share_directory('sick_scan_xd'), 
-                                                    'launch'),'sick_tim_5xx.launch.py'], 
-    'ust10lx':[os.path.join(get_package_share_directory('urg_node2'), 
+                                                    'launch'),'sick_tim_5xx.launch.py'],
+    'ust10lx':[os.path.join(get_package_share_directory('urg_node2'),
                                                     'launch'),'urg_node2.launch.py'],
-    'ust20lx':[os.path.join(get_package_share_directory('urg_node2'), 
+    'ust20lx':[os.path.join(get_package_share_directory('urg_node2'),
                                                     'launch'),'urg_node2.launch.py'],
-    'pacecat':[os.path.join(get_package_share_directory('bluesea2'), 
+    'pacecat':[os.path.join(get_package_share_directory('bluesea2'),
                                                     'launch'),'LDS-50C-E.launch'],
     'slamtech':[os.path.join(get_package_share_directory('sllidar_ros2'), 
-                                                    'launch'),'sllidar_t1_launch.py'],
+                                                    'launch'),'sllidar_t1_launch.py']
 }
-
+frame_ids = {
+    'sick551':'laser',
+    'sick571':'laser',
+    'ust10lx':'cloud',
+    'ust20lx':'cloud',
+    'pacecat':'map',
+    'slamtech':'laser'
+}
 ## END TODO
+
+
 def generate_launch_description():
     # Switch the boolean corresponding to the required lidar driver to True
     lidar = LaunchConfiguration('lidar')
     try:
         lidar_driver = lidar_drivers[lidar]
+        lidar_frame = frame_ids[lidar]
     except KeyError:
         rospy.logerr(f"Lidar driver for {lidar} not found")
 
@@ -45,9 +56,12 @@ def generate_launch_description():
     # TODO: select the correct rviz config
     default_rviz_config_path = os.path.join(pkg_share, 'config/slam_toolbox_default.rviz')
 
-    # FIXME
+    # TODO implement launch param approach
     with open(default_model_path, 'r') as urdf:
         robot_desc = urdf.read()
+
+    # FIXME
+    robot_desc = robot_desc.replace('laser', lidar_frame)
 
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -74,6 +88,12 @@ def generate_launch_description():
     driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(lidar_driver),
         launch_arguments={'hostname':'192.168.0.10'}.items(),  # FIXME doesn't work
+    )
+    # launch the laser scan matcher
+    laser_scan_matcher = Node(
+        package='ros2_laser_scan_matcher', 
+        executable='laser_scan_matcher',
+        name='scan_matcher'
     )
 
     return launch.LaunchDescription([
