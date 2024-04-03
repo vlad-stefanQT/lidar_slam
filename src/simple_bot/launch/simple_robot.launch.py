@@ -35,10 +35,10 @@ def generate_launch_description():
     )
 
     lidar_driver = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([os.path.join(
+        PythonLaunchDescriptionSource([os.path.join(
          get_package_share_directory('sick_scan_xd'), 'launch', 'sick_tim_5xx.launch.py')]),
-         launch_arguments={'hostname':'192.168.0.10'}.items()
-      )
+         launch_arguments={'':'hostname:=192.168.0.10'}.items()  # Does not work (why?)
+    )
 
     return launch.LaunchDescription([
         lidar_driver,

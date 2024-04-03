@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 
 <robot name="simple_bot">
-    <link name="base_link">
-    </link>
+    <link name="base_link"/>
 
-    <joint name="base_link" type="fixed">
-        <parent link="base_link">
-        <child link="lidar">
+    <joint name="base_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="cloud"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </joint>
 
-    <link name="lidar">
+    <link name="cloud">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </link>
-</robot> 
+</robot>
