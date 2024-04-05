@@ -1,0 +1,12 @@
+[submodule "src/bluesea-ros2"]
+	path = src/bluesea-ros2
+	url = https://github.com/BlueSeaLidar/bluesea-ros2
+[submodule "src/sick_scan_xd"]
+	path = src/sick_scan_xd
+	url = https://github.com/SICKAG/sick_scan_xd.git
+[submodule "src/sllidar_ros2"]
+	path = src/sllidar_ros2
+	url = https://github.com/Slamtec/sllidar_ros2.git
+[submodule "src/urg_node2"]
+	path = src/urg_node2
+	url = https://github.com/Hokuyo-aut/urg_node2.git
