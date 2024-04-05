@@ -1,4 +1,5 @@
-# Edit by 吉海-san
+# Launches specified LIDAR driver with frame_id laser
+
 import launch
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -10,50 +11,39 @@ from launch.conditions import IfCondition
 import launch_ros
 import os
 
-#
-# Each lidar driver has a corresponding boolean value showing if it is used or not
-# lidar_drivers = {'sick551':False, 'sick571':False, 'ust10lx':False,
-#                   'ust20lx':False, 'pacecat': False, 'slamtech': False}
-## TODO
+
 lidar_drivers = {
-    'sick551':{'path':[os.path.join(get_package_share_directory('sick_scan_xd'), 'launch', 'sick_tim_5xx.launch.py')],
-               'launch_arg':{'hostname':'192.168.0.1'}},
-    'sick571':{'path':[os.path.join(get_package_share_directory('sick_scan_xd'), 'launch','sick_tim_5xx.launch.py')],
-               'launch_arg':{'hostname':'192.168.0.1'}},
-    'ust10lx':{'path':[os.path.join(get_package_share_directory('urg_node2'), 'launch','urg_node2.launch.py')],
+    'sick551':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch', 'sick_tim_551.launch.py')],
                'launch_arg':{}},
-    'ust20lx':{'path':[os.path.join(get_package_share_directory('urg_node2'), 'launch','urg_node2.launch.py')],
+    'sick571':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch','sick_tim_571.launch.py')],
                'launch_arg':{}},
+    'ust10lx':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch','urg_node2.launch.py')],
+               'launch_arg':{}},
+    'ust20lx':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch','urg_node2.launch.py')],
+               'launch_arg':{}},  #FIXME pass param?
     'pacecat':{'path':[os.path.join(get_package_share_directory('bluesea2'), 'launch','LDS-50C-E.launch')],
                'launch_arg':{'params_file': os.path.join(get_package_share_directory('simple_bot'), 'config', 'LDS-50C-E.yaml')}},
     'slamtech':{'path':[os.path.join(get_package_share_directory('sllidar_ros2'), 'launch', 'sllidar_t1_launch.py')],
                 'launch_arg':{}},
 }
 
-
 def include_conditional_lidar_launch_file(context):
-    # LaunchConfiguration の値を取得
+    # Special thanks to 吉海さん
+    # LaunchConfiguration の値を取得 
     lidar_type = context.launch_configurations.get('lidar', 'sick551')
     print(lidar_type)
 
-    try:
-        lidar_driver = lidar_drivers[lidar_type]
-        launch_path = lidar_driver['path']
-        launch_args = lidar_driver['launch_arg']
-        print(launch_path)
-        print(launch_args)
-        exit # TODO remove
-    except KeyError:
-        print(f"Lidar driver for {lidar} not found")
+    lidar_driver = lidar_drivers[lidar_type]
+    launch_path = lidar_driver['path']
+    launch_args = lidar_driver['launch_arg']
+    print(launch_path)
+    print(launch_args)
 
-    #TODO: add all drivers
     return [IncludeLaunchDescription(
         PythonLaunchDescriptionSource(launch_path),
         launch_arguments=launch_args.items(),
     )]
 
-
-## END TODO
 def generate_launch_description():
     # The user selects which lidar driver to use by assigning a value to the 'lidar' launch argument
     argument = DeclareLaunchArgument('lidar', default_value='sick551',
@@ -62,11 +52,8 @@ def generate_launch_description():
     # Get the path of the URDF file and the rviz configuration
     pkg_share = FindPackageShare(package='simple_bot').find('simple_bot')
     default_model_path = os.path.join(pkg_share, 'urdf/simple_bot.urdf')
+    default_rviz_config_path = os.path.join(pkg_share, 'config/lidar_config.rviz')
 
-    # TODO: select the correct rviz config
-    default_rviz_config_path = os.path.join(pkg_share, 'config/slam_toolbox_default.rviz')
-
-    # FIXME not adapted for lidar frame_ids
     with open(default_model_path, 'r') as urdf:
         robot_desc = urdf.read()
 
@@ -75,6 +62,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         parameters=[{'robot_description': robot_desc}]
     )
+
     joint_state_publisher_node = launch_ros.actions.Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
@@ -90,39 +78,10 @@ def generate_launch_description():
         arguments=['-d', default_rviz_config_path ],
     )
 
-    # launch the laser scan matcher
-    laser_scan_matcher = Node(
-        package='ros2_laser_scan_matcher',
-        executable='laser_scan_matcher',
-        name='scan_matcher'
-    )
-
-    # launch the slam toolbox
-    slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory('slam_toolbox'), 'launch', 'online_sync_launch.py')]),
-        launch_arguments={'slam_params_file':os.path.join(pkg_share, 'config/config.yaml')}.items()
-    )
     return launch.LaunchDescription([
         argument,
         joint_state_publisher_node,
         robot_state_publisher_node,
         rviz_node,
-        laser_scan_matcher,
-        slam_toolbox,
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         [os.path.join(get_package_share_directory('simple_bot'), 'launch', 'urg_node2.launch.py')]),
-        #     #launch_arguments={}.items()),
-        # ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         [os.path.join(get_package_share_directory('sick_scan_xd'), 'launch', 'sick_tim_5xx.launch.py')]),
-        #     launch_arguments={'hostname':'192.168.0.1'}.items()),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         [os.path.join(get_package_share_directory('urg_node2'), 'launch', 'urg_node2.launch.py')]),
-        #     launch_arguments={}.items(),
-        # ),
         OpaqueFunction(function=include_conditional_lidar_launch_file),
     ])
