@@ -9,7 +9,23 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import ThisLaunchFileDir
 
 
+def include_conditional_lidar_launch_file(context):
+    # Special thanks to 吉海さん
+    # LaunchConfiguration の値を取得 
+    lidar = context.launch_configurations.get('lidar', 'sick551')
+    launch_path = os.path.join(get_package_share_directory('simple_bot'), 'launch', 
+                         'simple_robot_multiple.launch.py')
+
+    return [IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(launch_path),
+        launch_arguments=lidar.items(),
+    )]
+
 def generate_launch_description():
+    # The user selects which lidar driver to use by assigning a value to the 'lidar' launch argument
+    argument = DeclareLaunchArgument('lidar', default_value='sick551',
+                                     choices=['sick551', 'sick571', 'ust10lx', 'ust20lx', 'pacecat', 'slamtech'])
+
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     simple_bot_prefix = get_package_share_directory('simple_bot')
 
@@ -21,9 +37,19 @@ def generate_launch_description():
     resolution = LaunchConfiguration('resolution', default='0.01')
     publish_period_sec = LaunchConfiguration('publish_period_sec', default='1.0')  # Not sure what this does
 
+    # rviz_config_dir = os.path.join(simple_bot_prefix, 'rviz', 'simple_bot_slam_config.rviz')
     rviz_config_dir = os.path.join(simple_bot_prefix, 'rviz', 'tb3_cartographer.rviz')
+    rviz_node = Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            arguments=['-d', rviz_config_dir],
+            parameters=[{'use_sim_time': use_sim_time}],
+            output='screen')
 
     return LaunchDescription([
+        argument,
+        rviz_node,
         DeclareLaunchArgument(
             'cartographer_config_dir',
             default_value=cartographer_config_dir,  # default also set in LaunchConfiguration (why?)
@@ -60,13 +86,5 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/occupancy_grid.launch.py']),
             launch_arguments={'use_sim_time': use_sim_time, 'resolution': resolution,
                               'publish_period_sec': publish_period_sec}.items(),
-        ),
-
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_dir],
-            parameters=[{'use_sim_time': use_sim_time}],
-            output='screen'),
+        )
     ])
