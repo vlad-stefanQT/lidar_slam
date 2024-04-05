@@ -20,7 +20,7 @@ lidar_drivers = {
     'ust10lx':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch','urg_node2.launch.py')],
                'launch_arg':{}},
     'ust20lx':{'path':[os.path.join(get_package_share_directory('simple_bot'), 'launch','urg_node2.launch.py')],
-               'launch_arg':{}},  #FIXME pass param?
+               'launch_arg':{'params_file':os.path.join(get_package_share_directory('simple_bot'), 'config','params_ether.yaml')}},  #FIXME pass param?
     'pacecat':{'path':[os.path.join(get_package_share_directory('bluesea2'), 'launch','LDS-50C-E.launch')],
                'launch_arg':{'params_file': os.path.join(get_package_share_directory('simple_bot'), 'config', 'LDS-50C-E.yaml')}},
     'slamtech':{'path':[os.path.join(get_package_share_directory('sllidar_ros2'), 'launch', 'sllidar_t1_launch.py')],

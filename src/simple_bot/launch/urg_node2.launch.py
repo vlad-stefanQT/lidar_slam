@@ -19,7 +19,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
-from launch.actions import (DeclareLaunchArgument, EmitEvent, RegisterEventHandler)
+from launch.actions import (DeclareLaunchArgument, EmitEvent, RegisterEventHandler, OpaqueFunction)
 from launch.event_handlers import OnProcessStart
 from launch.events import matches_action
 from launch_ros.actions import LifecycleNode
@@ -27,16 +27,13 @@ from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState
 from lifecycle_msgs.msg import Transition
 
-def generate_launch_description():
-
-    # パラメータファイルのパス設定
-    config_file_path = LaunchConfiguration('params_file')
+def includ_ros_param_file(context):
+    config_file_path = context.launch_configurations.get('params_file')
 
     # パラメータファイルのロード
     with open(config_file_path, 'r') as file:
         config_params = yaml.safe_load(file)['urg_node2']['ros__parameters']
 
-    # urg_node2をライフサイクルノードとして起動
     lifecycle_node = LifecycleNode(
         package='urg_node2',
         executable='urg_node2_node',
@@ -46,8 +43,7 @@ def generate_launch_description():
         namespace='',
         output='screen',
     )
-
-    # Unconfigure状態からInactive状態への遷移（auto_startがtrueのとき実施）
+        # Unconfigure状態からInactive状態への遷移（auto_startがtrueのとき実施）
     urg_node2_node_configure_event_handler = RegisterEventHandler(
         event_handler=OnProcessStart(
             target_action=lifecycle_node,
@@ -81,6 +77,18 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('auto_start')),
     )
 
+    return [
+        lifecycle_node,
+        urg_node2_node_configure_event_handler,
+        urg_node2_node_activate_event_handler,
+    ]
+
+def generate_launch_description():
+    file_param_declare = DeclareLaunchArgument('params_file', default_value=os.path.join(
+            get_package_share_directory('simple_bot'), 
+            'config','params_ether.yaml'))
+
+
     # パラメータについて
     # auto_start      : 起動時自動でActive状態まで遷移 (default)true
     # node_name       : ノード名 (default)"urg_node2"
@@ -89,11 +97,7 @@ def generate_launch_description():
         DeclareLaunchArgument('auto_start', default_value='true'),
         DeclareLaunchArgument('node_name', default_value='urg_node2'),
         DeclareLaunchArgument('scan_topic_name', default_value='scan'),
-        DeclareLaunchArgument('params_file', default_value=os.path.join(
-            get_package_share_directory('simple_bot'), 
-            'config','params_ether.yaml')),
-        lifecycle_node,
-        urg_node2_node_configure_event_handler,
-        urg_node2_node_activate_event_handler,
+        file_param_declare,
+        OpaqueFunction(function=includ_ros_param_file),
     ])
 
