@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription
@@ -15,10 +15,9 @@ def include_conditional_lidar_launch_file(context):
     lidar = context.launch_configurations.get('lidar', 'sick551')
     launch_path = os.path.join(get_package_share_directory('simple_bot'), 'launch', 
                          'simple_robot_multiple.launch.py')
-
     return [IncludeLaunchDescription(
         PythonLaunchDescriptionSource(launch_path),
-        launch_arguments=lidar.items(),
+        launch_arguments=[('lidar', lidar)],
     )]
 
 def generate_launch_description():
@@ -86,5 +85,6 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/occupancy_grid.launch.py']),
             launch_arguments={'use_sim_time': use_sim_time, 'resolution': resolution,
                               'publish_period_sec': publish_period_sec}.items(),
-        )
+        ),
+        OpaqueFunction(function=include_conditional_lidar_launch_file),
     ])
