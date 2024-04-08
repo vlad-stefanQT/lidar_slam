@@ -96,7 +96,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('auto_start', default_value='true'),
         DeclareLaunchArgument('node_name', default_value='urg_node2'),
-        DeclareLaunchArgument('scan_topic_name', default_value='scan'),
+        DeclareLaunchArgument('scan_topic_name', default_value='main_scan'),
         file_param_declare,
         OpaqueFunction(function=includ_ros_param_file),
     ])

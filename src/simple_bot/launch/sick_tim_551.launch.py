@@ -7,7 +7,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     ld = LaunchDescription()
-    sick_scan_pkg_prefix = get_package_share_directory('sick_scan_xd')
+    sick_scan_pkg_prefix = get_package_share_directory('simple_bot')
     launchfile = os.path.basename('sick_tim_5xx.launch') # convert "<lidar_name>.launch.py" to "<lidar_name>.launch"
     launch_file_path = os.path.join(sick_scan_pkg_prefix, 'launch/' + launchfile) # 'launch/sick_tim_5xx.launch')
     node_arguments=[launch_file_path]

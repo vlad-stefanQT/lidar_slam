@@ -2,7 +2,7 @@ bluesea_node:
   ros__parameters:
   #ROS2#
     frame_id: "laser"
-    topic: "scan"
+    topic: "main_scan"
   #DATA#
     dev_id: -1
     raw_bytes: 3

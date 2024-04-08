@@ -37,13 +37,6 @@ def generate_launch_description():
         arguments=['-d', default_rviz_config_path],
     )
 
-    # launch lidar driver
-    # lidar_driver = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource([os.path.join(
-    #      get_package_share_directory('sick_scan_xd'), 'launch', 'sick_tim_5xx.launch.py')]),
-    #      launch_arguments={'':'hostname:=192.168.0.10'}.items()  # Does not work (why?)
-    # )
-
     lidar_driver = IncludeLaunchDescription(
       PythonLaunchDescriptionSource([os.path.join(
          get_package_share_directory('urg_node2'), 'launch', 'urg_node2.launch.py')]),
