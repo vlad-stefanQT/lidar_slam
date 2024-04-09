@@ -46,13 +46,13 @@ def include_conditional_lidar_launch_file(context):
 
 def generate_launch_description():
     # The user selects which lidar driver to use by assigning a value to the 'lidar' launch argument
-    argument = DeclareLaunchArgument('lidar', default_value='sick551',
-                                     choices=['sick551', 'sick571', 'ust10lx', 'ust20lx', 'pacecat', 'slamtech'])
+    # argument = DeclareLaunchArgument('lidar', default_value='sick551',
+    #                                  choices=['sick551', 'sick571', 'ust10lx', 'ust20lx', 'pacecat', 'slamtech'])
 
     # Get the path of the URDF file and the rviz configuration
     pkg_share = FindPackageShare(package='simple_bot').find('simple_bot')
     default_model_path = os.path.join(pkg_share, 'urdf/simple_bot.urdf')
-    default_rviz_config_path = os.path.join(pkg_share, 'config/lidar_config.rviz')
+    default_rviz_config_path = os.path.join(pkg_share, 'config/slam_toolbox_default.rviz')
 
     with open(default_model_path, 'r') as urdf:
         robot_desc = urdf.read()
@@ -80,15 +80,15 @@ def generate_launch_description():
 
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory('slam_toolbox'), 'launch', 'online_sync_launch.py')]),
-        launch_arguments={'slam_params_file':os.path.join(pkg_share, 'config/config.yaml')}
+            [os.path.join(get_package_share_directory('slam_toolbox'), 'launch', 'online_async_launch.py')]),
+        launch_arguments={'slam_params_file':os.path.join(pkg_share, 'config/mapper_params_online_async.yaml')}.items()
     )
 
     return launch.LaunchDescription([
-        argument,
-        joint_state_publisher_node,
-        robot_state_publisher_node,
+        # argument,
+        # joint_state_publisher_node,
+        # robot_state_publisher_node,
         rviz_node,
-        OpaqueFunction(function=include_conditional_lidar_launch_file),
+        # OpaqueFunction(function=include_conditional_lidar_launch_file),
         slam_toolbox
     ])
