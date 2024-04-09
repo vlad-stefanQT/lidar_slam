@@ -27,18 +27,18 @@ Build scik lidar driver packages (~2mins)
 `source ./install/setup.bash`
 
 ## 実行方法 - How to Run ##
-# Without robot
+### Without robot
 Launch Lidar with robot state publisher
 `ros2 launch simple_bot simple_robot_multiple.launch.py lidar:='<lidar_name>'`
 
 Standalone LiDAR slam with Cartographer
 `ros2 launch simple_bot simple_bot_slam.launch lidar:='<lidar_name>'`
 
-# With robot
+### With robot
 Launch slamtoolbox for mapping
 `ros2 launch simple_bot slam_toolbox.launch`
 
-# Running drivers individually
+### Running drivers individually
 <<SLAMTEC_LPX_T1>>
 IP on computer= 192.168.11.5
 ros2 launch sllidar_ros2 view_sllidar_t1_launch.py
