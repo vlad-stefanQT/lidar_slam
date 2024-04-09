@@ -22,7 +22,7 @@ Build scik lidar driver packages (~2mins)
 `colcon build colcon build --symlink-install`
 `source ./install/setup.bash`
 
-# In the case of any packages needing to be rebuilt after editing
+In the case of any packages needing to be rebuilt after editing
 `colcon build colcon build --packages-select <package_name>`
 `source ./install/setup.bash`
 
